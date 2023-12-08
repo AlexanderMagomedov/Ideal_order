@@ -1,16 +1,23 @@
-# from aiogram import F, Router
-# from aiogram.types import CallbackQuery
-# from telebot.books.book_list import page_list, give_all_book_text, page_book
-# from telebot.filters.filters import IsStory
-# from telebot.keyboards.keyboards import create_back_keyboard, create_story_list_keyboard, create_story_keyboard
-# from telebot.keyboards.main_menu import create_menu_keyboard
-# from telebot.keyboards.help_key import create_help_keyboard
-# from telebot.lexicon.lexicon_ru import LEXICON_RU
-# from telebot.models import Book
-#
-# router = Router()
-#
-#
+from aiogram import F, Router
+from aiogram.filters import Command, CommandStart
+from aiogram.types import Message
+from telebot.lexicon.lexicon_ru import LEXICON_RU
+
+
+router = Router()
+
+
+# Этот хэндлер будет срабатывать на команду "/start"
+# и отправлять ему приветственное сообщение показывать кнопки главного меню
+@router.message(CommandStart())
+async def process_start_command(message: Message):
+
+    if str(message.from_user.id) in ('1851454482',):
+        await message.answer(LEXICON_RU['/start_good'])
+    else:
+        await message.answer(f'{LEXICON_RU["/start_bad"]} {message.from_user.id}')
+
+
 # # Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
 # # "Назад"
 # @router.callback_query(F.data == '/start')

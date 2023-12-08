@@ -3,7 +3,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from telebot.config_data.config import Config, load_config
-from telebot.handlers import other_handlers, user_handlers_command, user_handlers_button
+from telebot.handlers import other_handlers, user_handlers_button
 from telebot.keyboards.main_menu import set_main_menu
 
 
@@ -22,7 +22,6 @@ class Command(BaseCommand):
             dp = Dispatcher()
 
             # Регистриуем роутеры в диспетчере
-            dp.include_router(user_handlers_command.router)
             dp.include_router(user_handlers_button.router)
             dp.include_router(other_handlers.router)
 
