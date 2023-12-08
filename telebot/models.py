@@ -25,8 +25,8 @@ class User(models.Model):
 
 
 class Trek(models.Model):
-    start = models.ForeignKey(to=Store.store_name, related_name='start', on_delete=models.CASCADE)
-    finish = models.ForeignKey(to=Store.store_name, related_name='start', on_delete=models.CASCADE)
+    start = models.ForeignKey(to=Store, related_name='start', on_delete=models.CASCADE)
+    finish = models.ForeignKey(to=Store, related_name='finish', on_delete=models.CASCADE)
     trek = models.FloatField()
 
     class Meta:
@@ -38,8 +38,8 @@ class Trek(models.Model):
 
 
 class Order(models.Model):
-    store = models.ForeignKey(to=Store.store_name, related_name='start', on_delete=models.CASCADE)
-    user = models.ForeignKey(to=User.user_name, related_name='start', on_delete=models.CASCADE)
+    store = models.ForeignKey(to=Store, related_name='store', on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, related_name='user', on_delete=models.CASCADE)
     data = models.DateTimeField(auto_now_add=True)
 
     class Meta:

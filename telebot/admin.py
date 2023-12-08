@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from telebot.models import Store, User, Trek, Order
+
+admin.site.register(Store)
+admin.site.register(User)
+admin.site.register(Trek)
+admin.site.register(Order)
