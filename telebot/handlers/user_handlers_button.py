@@ -1,7 +1,8 @@
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
+from telebot.filters.filters import IsStore
 from telebot.keyboards.keyboards import create_store_list_keyboard
 from telebot.lexicon.lexicon_ru import LEXICON_RU
 import sqlite3
@@ -41,22 +42,9 @@ async def process_about_me_command(message: Message):
     await message.answer(LEXICON_RU[message.text], reply_markup=create_store_list_keyboard())
 
 
-
-
-
-
-
-# # Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
-# # "Обо мне" в главном меню показывает сообщение и кнопку "назад"
-# @router.callback_query(F.data == '/about_me')
-# async def process_about_me(callback: CallbackQuery):
-#     await callback.message.edit_text(text=LEXICON_RU['/about_me'], reply_markup=create_back_keyboard('/start'))
-#     await callback.answer()
-#
-# # Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
-# # "Наша почта" в меню "Поддержка" выводить почту и кнопку "назад"
-# @router.callback_query(F.data == 'email')
-# async def process_email(callback: CallbackQuery):
-#     await callback.message.edit_text(
-#         text=LEXICON_RU['email_send'], reply_markup=create_back_keyboard('/help'))
-#     await callback.answer()
+# Этот хэндлер будет срабатывать на нажатие инлайн-кнопки
+# в списке доступных сказок Запускать первую страницу сказки
+@router.callback_query(IsStore())
+async def process_cancel_press(callback: CallbackQuery):
+    await callback.message.edit_text(text=LEXICON_RU['order_success'])
+    await callback.answer()
