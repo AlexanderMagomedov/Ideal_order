@@ -3,14 +3,24 @@ from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from asgiref.sync import sync_to_async
 
-from telebot.filters.filters import IsStore, IsMassa
+from telebot.filters.filters import IsStore, IsMassa, give_all_telegram_id
 from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa_keyboard
 from telebot.lexicon.lexicon_ru import LEXICON_RU
-import sqlite3
+
 
 from telebot.models import Order, Store, User
 
 router = Router()
+
+
+# Функция фильтр если пользователь сотрудник
+def filter_is_not_staff(message: Message):
+    return str(message.from_user.id) not in give_all_telegram_id()
+
+# Этот хендлер срабатывает если пользователь не сотрудник
+@router.message(filter_is_not_staff)
+async def process_start_command(message: Message):
+        await message.answer(f'{LEXICON_RU["/start_bad"]} {message.from_user.id}')
 
 
 # Этот хэндлер будет срабатывать на команду "/start"
@@ -29,13 +39,7 @@ def telegram_id_exist(message) -> bool:
         return True
 
 
-# Функция возвращает полный список всех телеграм ид сотрудников
-def give_all_telegram_id():
-    connect = sqlite3.connect('db.sqlite3')
-    cursor = connect.cursor()
-    user_list_all = (list(map(lambda x: x[0], cursor.execute("SELECT telegram_id FROM telebot_user").fetchall())))
-    connect.close()
-    return user_list_all
+
 
 
 # Этот хэндлер будет срабатывать на команду "/store_list"
@@ -68,4 +72,6 @@ def add_order(callback: str):
         massa=callback.split()[2]
     )
     order.save()
+
+
 
