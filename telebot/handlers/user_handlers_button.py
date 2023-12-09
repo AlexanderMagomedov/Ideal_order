@@ -1,13 +1,11 @@
-import sqlite3
-
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from asgiref.sync import sync_to_async
 from django.db import IntegrityError
-
-from telebot.filters.filters import IsStore, IsMassa, give_all_telegram_id
-from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa_keyboard
+import sqlite3
+from telebot.filters.filters import IsStore, IsMassa
+from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa_keyboard, create_orders_list_keyboard
 from telebot.lexicon.lexicon_ru import LEXICON_RU
 
 
@@ -19,6 +17,7 @@ router = Router()
 # Функция фильтр если пользователь сотрудник
 def filter_is_not_staff(message: Message):
     return str(message.from_user.id) not in give_all_telegram_id()
+
 
 # Этот хендлер срабатывает если пользователь не сотрудник
 @router.message(filter_is_not_staff)
@@ -42,7 +41,13 @@ def telegram_id_exist(message) -> bool:
         return True
 
 
-
+# Функция возвращает полный список всех телеграм ид сотрудников
+def give_all_telegram_id():
+    connect = sqlite3.connect('db.sqlite3')
+    cursor = connect.cursor()
+    user_list_all = (list(map(lambda x: x[0], cursor.execute("SELECT telegram_id FROM telebot_user").fetchall())))
+    connect.close()
+    return user_list_all
 
 
 # Этот хэндлер будет срабатывать на команду "/store_list"
@@ -77,11 +82,25 @@ async def process_save_order_press(callback: CallbackQuery):
 @sync_to_async
 def add_order(callback: str):
     order = Order(
-        store=Store.objects.get(store_name=callback.split()[0]),
-        user=User.objects.get(telegram_id=callback.split()[1]),
-        massa=callback.split()[2]
+        store=Store.objects.get(store_name=' '.join(callback.split()[2:])),
+        user=User.objects.get(telegram_id=callback.split()[0]),
+        massa=callback.split()[1]
     )
     order.save()
 
 
+# Этот хэндлер будет срабатывать на команду "/orders"
+# и отправлять пользователю список инлайн кнопок с названиями магазинов и
+@router.message(Command(commands='orders'))
+async def process_store_list_command(message: Message):
+    await message.answer(LEXICON_RU[message.text], reply_markup=create_orders_list_keyboard(give_all_orders()))
 
+
+# Функция возвращает полный список всех заявок
+def give_all_orders():
+    connect = sqlite3.connect('db.sqlite3')
+    cursor = connect.cursor()
+    orders = (list(map(lambda x: x[0], cursor.execute("SELECT store_name FROM telebot_order JOIN telebot_store ON telebot_store.id = telebot_order.store_id").fetchall())))
+    connect.close()
+    print(orders)
+    return orders

@@ -30,7 +30,19 @@ def create_massa_keyboard(store_name, telegram_id) -> InlineKeyboardMarkup:
     # Наполняем клавиатуру кнопками-закладками
     kb_builder.row(*[InlineKeyboardButton(
         text=f'{i} кг',
-        callback_data=f'{store_name} {telegram_id} {i}') for i in range(2, 32)], width=5)
+        callback_data=f'{telegram_id} {i} {store_name}') for i in range(2, 32)], width=5)
+    return kb_builder.as_markup()
+
+
+# Функция создания инлайн кнопкок с заявками
+def create_orders_list_keyboard(arg) -> InlineKeyboardMarkup:
+    # Создаем объект клавиатуры
+    kb_builder = InlineKeyboardBuilder()
+    # Наполняем клавиатуру кнопками-закладками
+    for story_name in arg:
+        kb_builder.row(InlineKeyboardButton(
+            text=f'Закрыть заявку по {story_name}',
+            callback_data=story_name), width=2)
     return kb_builder.as_markup()
 
 
