@@ -1,7 +1,10 @@
+import sqlite3
+
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from asgiref.sync import sync_to_async
+from django.db import IntegrityError
 
 from telebot.filters.filters import IsStore, IsMassa, give_all_telegram_id
 from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa_keyboard
@@ -59,9 +62,16 @@ async def process_create_order_press(callback: Message):
 
 @router.callback_query(IsMassa())
 async def process_save_order_press(callback: CallbackQuery):
-    await callback.message.edit_text(text=LEXICON_RU['order_success'])
-    await add_order(callback.data)
-    await callback.answer()
+    try:
+        await callback.message.edit_text(text=LEXICON_RU['order_success'])
+        await add_order(callback.data)
+        await callback.answer()
+    except User.DoesNotExist:
+        await callback.message.edit_text(text=LEXICON_RU['order_bad'])
+        await callback.answer()
+    except IntegrityError:
+        await callback.message.edit_text(text=LEXICON_RU['order_exist'])
+        await callback.answer()
 
 
 @sync_to_async

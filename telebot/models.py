@@ -38,7 +38,7 @@ class Trek(models.Model):
 
 
 class Order(models.Model):
-    store = models.ForeignKey(to=Store, related_name='store', on_delete=models.CASCADE)
+    store = models.OneToOneField(to=Store, related_name='store', on_delete=models.CASCADE, unique=True)
     user = models.ForeignKey(to=User, related_name='user', on_delete=models.CASCADE)
     data = models.DateTimeField(auto_now_add=True)
     massa = models.PositiveIntegerField(default=0)
