@@ -69,13 +69,13 @@ async def process_create_order_press(callback: Message):
 async def process_save_order_press(callback: CallbackQuery):
     try:
         await add_order(callback.data)
-        await callback.message.edit_text(text=LEXICON_RU['order_success'], reply_markup=create_store_list_keyboard())
+        await callback.message.edit_text(text=LEXICON_RU['order_success'])
         await callback.answer()
     except User.DoesNotExist:
         await callback.message.edit_text(text=LEXICON_RU['order_bad'])
         await callback.answer()
     except IntegrityError:
-        await callback.message.edit_text(text=LEXICON_RU['order_exist'], reply_markup=create_store_list_keyboard())
+        await callback.message.edit_text(text=LEXICON_RU['order_exist'])
         await callback.answer()
 
 
