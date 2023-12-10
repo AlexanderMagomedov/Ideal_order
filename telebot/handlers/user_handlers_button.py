@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from asgiref.sync import sync_to_async
 from django.db import IntegrityError
 import sqlite3
-from telebot.filters.filters import IsStore, IsMassa
+from telebot.filters.filters import IsStore, IsMassa, DeleteOrder
 from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa_keyboard, create_orders_list_keyboard
 from telebot.lexicon.lexicon_ru import LEXICON_RU
 
@@ -68,14 +68,14 @@ async def process_create_order_press(callback: Message):
 @router.callback_query(IsMassa())
 async def process_save_order_press(callback: CallbackQuery):
     try:
-        await callback.message.edit_text(text=LEXICON_RU['order_success'])
         await add_order(callback.data)
+        await callback.message.edit_text(text=LEXICON_RU['order_success'], reply_markup=create_store_list_keyboard())
         await callback.answer()
     except User.DoesNotExist:
         await callback.message.edit_text(text=LEXICON_RU['order_bad'])
         await callback.answer()
     except IntegrityError:
-        await callback.message.edit_text(text=LEXICON_RU['order_exist'])
+        await callback.message.edit_text(text=LEXICON_RU['order_exist'], reply_markup=create_store_list_keyboard())
         await callback.answer()
 
 
@@ -93,7 +93,10 @@ def add_order(callback: str):
 # и отправлять пользователю список инлайн кнопок с названиями магазинов и
 @router.message(Command(commands='orders'))
 async def process_store_list_command(message: Message):
-    await message.answer(LEXICON_RU[message.text], reply_markup=create_orders_list_keyboard(give_all_orders()))
+    if give_all_orders():
+        await message.answer(LEXICON_RU[message.text], reply_markup=create_orders_list_keyboard(give_all_orders()))
+    else:
+        await message.answer(LEXICON_RU['no_orders'])
 
 
 # Функция возвращает полный список всех заявок
@@ -102,5 +105,18 @@ def give_all_orders():
     cursor = connect.cursor()
     orders = (list(map(lambda x: x[0], cursor.execute("SELECT store_name FROM telebot_order JOIN telebot_store ON telebot_store.id = telebot_order.store_id").fetchall())))
     connect.close()
-    print(orders)
     return orders
+
+
+@router.callback_query(DeleteOrder())
+async def process_delete_order_press(callback: CallbackQuery):
+    await delete_order(callback)
+    await callback.message.edit_text(
+        text=LEXICON_RU['delete_success'],
+        reply_markup=create_orders_list_keyboard(give_all_orders()))
+    await callback.answer()
+
+@sync_to_async
+def delete_order(callback):
+    order = Order.objects.filter(store_id=Store.objects.get(store_name=' '.join(callback.data.split()[1:])).id)
+    order.delete()

@@ -42,7 +42,7 @@ def create_orders_list_keyboard(arg) -> InlineKeyboardMarkup:
     for story_name in arg:
         kb_builder.row(InlineKeyboardButton(
             text=f'Закрыть заявку по {story_name}',
-            callback_data=story_name), width=2)
+            callback_data=f'delete {story_name}'))
     return kb_builder.as_markup()
 
 
