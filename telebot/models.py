@@ -52,7 +52,7 @@ class Order(models.Model):
 
 
 class CompletedOrder(models.Model):
-    store = models.OneToOneField(to=Store, related_name='completed_store', on_delete=models.CASCADE, unique=True)
+    store = models.OneToOneField(to=Store, related_name='completed_store', on_delete=models.CASCADE, unique=False)
     user = models.ForeignKey(to=User, related_name='order_user', on_delete=models.CASCADE)
     data = models.DateTimeField()
     massa = models.PositiveIntegerField(default=0)
