@@ -9,7 +9,7 @@ from telebot.keyboards.keyboards import create_store_list_keyboard, create_massa
 from telebot.lexicon.lexicon_ru import LEXICON_RU
 
 
-from telebot.models import Order, Store, User
+from telebot.models import Order, Store, User, CompletedOrder
 
 router = Router()
 
@@ -116,7 +116,16 @@ async def process_delete_order_press(callback: CallbackQuery):
         reply_markup=create_orders_list_keyboard(give_all_orders()))
     await callback.answer()
 
+
 @sync_to_async
 def delete_order(callback):
     order = Order.objects.filter(store_id=Store.objects.get(store_name=' '.join(callback.data.split()[1:])).id)
+    completed_order = CompletedOrder(
+        store=Store.objects.get(id=order.values('store_id')[0]['store_id']),
+        user=User.objects.get(id=order.values('user_id')[0]['user_id']),
+        data=order.values('data'),
+        massa=order.values('massa'),
+        completed_user=User.objects.get(telegram_id=callback.from_user.id)
+    )
+    completed_order.save()
     order.delete()
