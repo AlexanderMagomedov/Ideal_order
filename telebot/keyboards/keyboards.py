@@ -30,7 +30,7 @@ def create_massa_keyboard(store_name, telegram_id) -> InlineKeyboardMarkup:
     # Наполняем клавиатуру кнопками-закладками
     kb_builder.row(*[InlineKeyboardButton(
         text=f'{i} кг',
-        callback_data=f'{telegram_id} {i} {store_name}') for i in range(2, 32)], width=5)
+        callback_data=f'{telegram_id} {i} {store_name}') for i in range(25, 525, 25)], width=5)
     return kb_builder.as_markup()
 
 
