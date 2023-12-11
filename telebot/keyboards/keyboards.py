@@ -10,7 +10,7 @@ def create_store_list_keyboard() -> InlineKeyboardMarkup:
     # Наполняем клавиатуру кнопками-закладками
     kb_builder.row(*[InlineKeyboardButton(
         text=story_name,
-        callback_data=story_name) for story_name in give_all_store()], width=1)
+        callback_data=story_name) for story_name in give_all_store()], width=3)
     return kb_builder.as_markup()
 
 
