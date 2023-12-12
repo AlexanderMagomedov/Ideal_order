@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  web:
+    container_name: admin-web
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app/
+    ports:
+      - "8000:8000"
+
+  tgbot:
+    container_name: bot
+    build:
+      context: .
+    command: python manage.py startbot
+    volumes:
+      - .:/app/
+volumes:
+  pg_data:
