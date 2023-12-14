@@ -17,5 +17,6 @@ services:
     command: python manage.py startbot
     volumes:
       - .:/app/
+    restart: always
 volumes:
   pg_data:
